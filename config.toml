@@ -1,0 +1,11 @@
+[settings]
+    throttle = 0.5
+    video_id = 'iDUr6iI68A8'
+[commands]
+    up = 'up'
+    down = 'down'
+    right = 'right'
+    left = 'left'
+    enter = 'enter'
+    z = 'z'
+    x = 'x'
