@@ -1,14 +1,15 @@
 import pytchat
 import time
-from pynput.keyboard import Key, Controller
+import pygetwindow as gw
+import pyautogui
 import toml
-from focus import focus_window
 
 data = toml.load("./config.toml")
 
 # Settings
 THROTTLE = data['settings']['throttle']
 VIDEO_ID = data['settings']['video_id']
+WINDOW_ID = data['settings']['window_id']  # Window ID of the target window
 
 # Commands
 UP = data['commands']['up']
@@ -20,61 +21,40 @@ Z = data['commands']['z']
 X = data['commands']['x']
 
 
-
-keyboard = Controller()
-
-
 def Move(direction):
     direction = direction.lower()
     if direction == "up":
-        keyboard.press(Key.up)
-        time.sleep(0.1)
-        keyboard.release(Key.up)
+        pyautogui.press('up')
     elif direction == "down":
-        keyboard.press(Key.down)
-        time.sleep(0.1)
-        keyboard.release(Key.down)
+        pyautogui.press('down')
     elif direction == "right":
-        keyboard.press(Key.right)
-        time.sleep(0.1)
-        keyboard.release(Key.right)
+        pyautogui.press('right')
     elif direction == "left":
-        keyboard.press(Key.left)
-        time.sleep(0.1)
-        keyboard.release(Key.left)
+        pyautogui.press('left')
     else:
         print("Invalid direction")
 
 
 def z():
-    keyboard.press('z')
+    pyautogui.press('z')
     time.sleep(THROTTLE)
-    keyboard.release('z')
-    
+
+
 def x():
-    keyboard.press('x')
+    pyautogui.press('x')
     time.sleep(THROTTLE)
-    keyboard.release('x')
+
 
 def PressEnter():
-    keyboard.press(Key.enter)
+    pyautogui.press('enter')
     time.sleep(.1)
-    keyboard.release(Key.enter)
 
 
 def spliter(msg):
     return msg.lower().split()
 
 
-commands = [
-    UP,
-    DOWN,
-    RIGHT,
-    LEFT,
-    ENTER,
-    Z,
-    X,
-]
+commands = [UP, DOWN, RIGHT, LEFT, ENTER, Z, X]
 
 
 class LoopController:
@@ -84,12 +64,15 @@ class LoopController:
     def run_loop(self):
         while True:
             try:
+                # Activate the target window
+                target_window = gw.get_window_by_id(WINDOW_ID)
+                target_window.activate()
+
                 # Focus the game window before interacting with it
                 chat = pytchat.create(video_id=VIDEO_ID)
                 while chat.is_alive():
                     for c in chat.get().sync_items():
                         if self.flag:
-                            focus_window("PokeWilds")
                             for word in spliter(c.message):
                                 if word in commands:
                                     if word == UP:
@@ -128,4 +111,3 @@ if __name__ == "__main__":
     print("Started...")
     controller = LoopController()
     controller.run_loop()
-
