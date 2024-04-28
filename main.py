@@ -1,15 +1,16 @@
+import subprocess
 import pytchat
 import time
 import pygetwindow as gw
 import pyautogui
 import toml
+from focus import focus_window
 
 data = toml.load("./config.toml")
 
 # Settings
 THROTTLE = data['settings']['throttle']
 VIDEO_ID = data['settings']['video_id']
-WINDOW_ID = data['settings']['window_id']  # Window ID of the target window
 
 # Commands
 UP = data['commands']['up']
@@ -19,6 +20,27 @@ LEFT = data['commands']['left']
 ENTER = data['commands']['enter']
 Z = data['commands']['z']
 X = data['commands']['x']
+
+game_path = 'pokemon.nds'
+
+
+def open_game_with_desmume(game_path):
+    # Open the game with DeSmuME
+    subprocess.Popen(['desmume', game_path])
+
+    # Wait for the emulator to open
+    time.sleep(3)  # Adjust the delay as needed
+
+    # Get the window ID of the newly opened DeSmuME window
+    wmctrl_output = subprocess.check_output(['wmctrl', '-l', '-x'])
+    wmctrl_lines = wmctrl_output.decode('utf-8').split('\n')
+    desmume_window_id = None
+    for line in wmctrl_lines:
+        if 'desmume' in line.lower():  # Adjust for the actual window title
+            desmume_window_id = line.split()[0]
+            break
+
+    return desmume_window_id
 
 
 def Move(direction):
@@ -61,11 +83,11 @@ class LoopController:
     def __init__(self):
         self.flag = True
 
-    def run_loop(self):
+    def run_loop(self, desmume_window_id):
         while True:
             try:
                 # Activate the target window
-                target_window = gw.get_window_by_id(WINDOW_ID)
+                target_window = gw.get_window_by_id(desmume_window_id)
                 target_window.activate()
 
                 # Focus the game window before interacting with it
@@ -107,7 +129,11 @@ class LoopController:
 
 if __name__ == "__main__":
     print("Initializing...")
-    time.sleep(2)
+    desmume_window_id = open_game_with_desmume(game_path)
+    print("Window ID:", desmume_window_id)
+    print("Waiting...")
+    time.sleep(120)
+    print('Started Game')
     print("Started...")
     controller = LoopController()
-    controller.run_loop()
+    controller.run_loop(desmume_window_id)

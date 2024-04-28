@@ -1,7 +1,8 @@
-game_path = 'pokemon.nds'
-import subprocess
-import time
 import pyautogui
+import time
+import subprocess
+game_path = 'pokemon.nds'
+
 
 def open_game_with_desmume(game_path):
     # Open the game with DeSmuME
@@ -9,7 +10,7 @@ def open_game_with_desmume(game_path):
 
     # Wait for the emulator to open
     time.sleep(3)  # Adjust the delay as needed
-    
+
     # Get the window ID of the newly opened DeSmuME window
     wmctrl_output = subprocess.check_output(['wmctrl', '-l', '-x'])
     wmctrl_lines = wmctrl_output.decode('utf-8').split('\n')
@@ -18,10 +19,11 @@ def open_game_with_desmume(game_path):
         if 'desmume' in line.lower():  # Adjust for the actual window title
             desmume_window_id = line.split()[0]
             break
-    
+
     return desmume_window_id
 
 # Example usage
+
 
 window_id = open_game_with_desmume(game_path)
 print("Window ID:", window_id)
@@ -30,7 +32,7 @@ print("Window ID:", window_id)
 if window_id:
     # Activate the DeSmuME window
     subprocess.call(['wmctrl', '-ia', window_id])
-    
+
     # Example interaction - click at a specific location on the window
     # You may need to adjust the coordinates based on your game's U
     # Wait for 1 minute
